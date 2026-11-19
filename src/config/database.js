@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
+﻿const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const dbPath = path.resolve(__dirname, '../../database.sqlite');
 
@@ -6,6 +6,7 @@ const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
     // 1. Limpiar tablas existentes para resetear el AUTOINCREMENT
+    db.run(`DROP TABLE IF EXISTS solicitud_equipos`);
     db.run(`DROP TABLE IF EXISTS solicitudes_prestamo`);
     db.run(`DROP TABLE IF EXISTS equipos`);
     db.run(`DROP TABLE IF EXISTS usuarios`);
@@ -36,6 +37,13 @@ db.serialize(() => {
         FOREIGN KEY(estudiante_id) REFERENCES usuarios(id)
     )`);
 
+    db.run(`CREATE TABLE solicitud_equipos (
+        solicitud_id INTEGER NOT NULL,
+        equipo_id INTEGER NOT NULL,
+        FOREIGN KEY(solicitud_id) REFERENCES solicitudes_prestamo(id),
+        FOREIGN KEY(equipo_id) REFERENCES equipos(id)
+    )`);
+
     // 3. Insertar Seed con IDs fijos garantizados (1, 2, 3)
     db.run(`INSERT INTO usuarios (id, nombre, rol, enListaNegra) VALUES (1, 'Dr. Juan Docente', 'DOCENTE', 0)`);
     db.run(`INSERT INTO usuarios (id, nombre, rol, enListaNegra) VALUES (2, 'Estudiante Activo', 'ESTUDIANTE', 0)`);
@@ -50,3 +58,4 @@ db.serialize(() => {
 });
 
 db.close();
+

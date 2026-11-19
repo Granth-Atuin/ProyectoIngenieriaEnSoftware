@@ -1,4 +1,4 @@
-const SolicitudPrestamo = require('../models/SolicitudPrestamo');
+﻿const SolicitudPrestamo = require('../models/SolicitudPrestamo');
 const ValidationService = require('../services/ValidationService');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
@@ -35,18 +35,32 @@ const PrestamoController = {
          VALUES (?, ?, ?, ?, ?, ?)`,
         [estudianteId, materiaNombre, fechaRetiro, fechaDevolucion, estado, esExcepcional],
         function(insertErr) {
-          db.close();
-          if (insertErr) return res.status(500).json({ error: insertErr.message });
-          
-          res.json({
-            mensaje: 'Solicitud creada con éxito',
-            solicitudId: this.lastID,
-            estado,
-            esExcepcional: !!esExcepcional
+          if (insertErr) { db.close(); return res.status(500).json({ error: insertErr.message }); }
+          const solicitudId = this.lastID;
+
+          // Persistir los equipos solicitados (un registro por unidad)
+          const stmt = db.prepare('INSERT INTO solicitud_equipos (solicitud_id, equipo_id) VALUES (?, ?)');
+          (equipos || []).forEach(eqId => stmt.run(solicitudId, eqId));
+          stmt.finalize((eqErr) => {
+            db.close();
+            if (eqErr) return res.status(500).json({ error: eqErr.message });
+
+            // Notificación simulada (declarada como "Simulado" en el RFC)
+            if (esExcepcional) {
+              console.log(`[SIMULADO][CU_08] Solicitud #${solicitudId} derivada a Autorización Extraordinaria. Notificación a la Dirección.`);
+            } else {
+              console.log(`[SIMULADO] Solicitud #${solicitudId} pendiente. Notificación al docente a cargo.`);
+            }
+
+            res.json({
+              mensaje: 'Solicitud creada con éxito',
+              solicitudId,
+              estado,
+              esExcepcional: !!esExcepcional
+            });
           });
         }
-      );
-    } catch (e) {
+      );    } catch (e) {
       res.status(500).json({ error: e.message });
     }
   }

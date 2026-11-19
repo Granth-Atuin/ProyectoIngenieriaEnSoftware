@@ -1,8 +1,8 @@
-const Usuario = require('../models/Usuario');
+﻿const Usuario = require('../models/Usuario');
 const Equipo = require('../models/Equipo');
 
 class ValidationService {
-    static async validar(solicitud) {
+    static async validar(solicitud, ahora = new Date()) {
         const errors = [];
 
         // 1. Bloqueo por Lista Negra (TC-05)
@@ -42,7 +42,7 @@ class ValidationService {
         }
 
         // 4. Validación de Antelación (TC-01, TC-02)
-        const antelacion = solicitud.calcularAntelacionHoras();
+        const antelacion = solicitud.calcularAntelacionHoras(ahora);
         let estadoSugerido = 'Pendiente de aprobacion docente';
         let esExcepcional = false;
 
@@ -65,3 +65,4 @@ class ValidationService {
 }
 
 module.exports = ValidationService;
+

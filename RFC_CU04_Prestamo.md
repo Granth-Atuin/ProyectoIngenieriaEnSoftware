@@ -253,3 +253,10 @@ node server.js
 * **Versión 1.0 (18/11/2026)**
   * **Autor:** Grupo N° 2
   * **Descripción:** Versión final implementada, probada y validada en entorno local con SQLite.
+* **Versión 1.1 (18/11/2026)**
+  * **Autor:** Grupo N° 2
+  * **Descripción:** Ajustes de alineación RFC–código (Playbook SDD, fase Validate):
+    * **Persistencia de equipos:** nueva tabla `solicitud_equipos` (solicitud_id, equipo_id), un registro por unidad solicitada.
+    * **Horas hábiles:** la antelación se calcula en horas hábiles (lunes a viernes). Los feriados quedan **fuera de alcance**. Se agrega TC-06.
+    * **CU_08 (Autorización Extraordinaria):** **Simulado**. Con antelación < 48 hs hábiles la solicitud queda en `Pendiente de autorizacion extraordinaria` y se emite una notificación simulada por consola. El flujo de aprobación de CU_08 queda fuera de alcance de este prototipo.
+    * **Pruebas:** `test-validation.js` usa fecha fija y verifica el código de error en TC-03 y TC-05 (antes marcaban PASSED sin verificar).
